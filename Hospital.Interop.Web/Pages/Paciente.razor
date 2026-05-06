@@ -1,0 +1,152 @@
+@page "/paciente"
+@inject PacienteService PacienteService
+@using Hospital.Interop.Web.Models
+@using Hospital.Interop.Web.Services
+
+<PageTitle>Consultar Paciente</PageTitle>
+
+<div class="container mt-5">
+    <h1>Consultar Información del Paciente</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="pacienteId" class="form-label">ID del Paciente:</label>
+                <div class="input-group">
+                    <input type="number" id="pacienteId" class="form-control" 
+                           @bind="pacienteIdInput" placeholder="Ingrese el ID" />
+                    <button class="btn btn-primary" @onclick="BuscarPaciente">
+                        @if (cargando)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Cargando...</span>
+                        }
+                        else
+                        {
+                            <span>Buscar</span>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    @mensaje
+                    <button type="button" class="btn-close" @onclick="() => mensaje = string.Empty"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @error
+                    <button type="button" class="btn-close" @onclick="() => error = string.Empty"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (paciente != null)
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Datos del Paciente</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Nombre:</strong>
+                                <p>@paciente.Nombre</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Documento:</strong>
+                                <p>@paciente.Documento</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Teléfono:</strong>
+                                <p>@paciente.Telefono</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Email:</strong>
+                                <p>@paciente.Email</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Fecha de Nacimiento:</strong>
+                                <p>@(paciente.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No disponible")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Género:</strong>
+                                <p>@(paciente.Genero ?? "No especificado")</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong>Dirección:</strong>
+                                <p>@paciente.Direccion</p>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <p class="text-muted small">
+                            ?? Esta información está disponible para todos los departamentos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string pacienteIdInput = string.Empty;
+    private PacienteDTOSinId? paciente;
+    private string mensaje = string.Empty;
+    private string error = string.Empty;
+    private bool cargando = false;
+
+    private async Task BuscarPaciente()
+    {
+        if (string.IsNullOrWhiteSpace(pacienteIdInput) || !int.TryParse(pacienteIdInput, out var id))
+        {
+            error = "Por favor ingrese un ID válido";
+            return;
+        }
+
+        cargando = true;
+        error = string.Empty;
+        mensaje = string.Empty;
+
+        try
+        {
+            paciente = await PacienteService.ObtenerPacienteSinId(id);
+
+            if (paciente == null)
+            {
+                error = $"No se encontró un paciente con el ID {id}";
+                paciente = null;
+            }
+            else
+            {
+                mensaje = "Paciente encontrado correctamente";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al buscar el paciente: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+}

@@ -1,0 +1,191 @@
+@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Hospital Interop Gateway - Inicio</PageTitle>
+
+<div class="hero-section bg-primary text-white p-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-3">
+                    <i class="fas fa-hospital"></i> Hospital Interop Gateway
+                </h1>
+                <p class="lead mt-3">Sistema integral de gestión hospitalaria</p>
+                <p class="text-light">Gestiona pacientes, citas, laboratorio, facturación y más en una sola plataforma</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-heartbeat" style="font-size: 5rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Gestionar Pacientes</h5>
+                    <p class="card-text text-muted">
+                        Registra y administra información de pacientes
+                    </p>
+                    <button class="btn btn-primary" @onclick="@((Action)(() => Navigation.NavigateTo("/pacientes")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Agendar Citas</h5>
+                    <p class="card-text text-muted">
+                        Gestiona citas médicas y disponibilidad
+                    </p>
+                    <button class="btn btn-success" @onclick="@((Action)(() => Navigation.NavigateTo("/citas")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-flask fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Laboratorio</h5>
+                    <p class="card-text text-muted">
+                        Solicita y consulta resultados de pruebas
+                    </p>
+                    <button class="btn btn-info" @onclick="@((Action)(() => Navigation.NavigateTo("/laboratorio")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-receipt fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Facturación</h5>
+                    <p class="card-text text-muted">
+                        Gestiona facturas y pagos de servicios
+                    </p>
+                    <button class="btn btn-warning" @onclick="@((Action)(() => Navigation.NavigateTo("/facturacion")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-hospital fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Departamentos</h5>
+                    <p class="card-text text-muted">
+                        Consulta información de departamentos
+                    </p>
+                    <button class="btn btn-danger" @onclick="@((Action)(() => Navigation.NavigateTo("/departamentos")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-secondary mb-3"></i>
+                    <h5 class="card-title">Dashboard</h5>
+                    <p class="card-text text-muted">
+                        Panel de control e indicadores
+                    </p>
+                    <button class="btn btn-secondary" @onclick="@((Action)(() => Navigation.NavigateTo("/dashboard")))">
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 mb-5">
+        <div class="col-md-6">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-search"></i> Búsqueda Pública
+                    </h5>
+                    <p class="card-text">
+                        Consulta información básica de pacientes sin permisos especiales.
+                    </p>
+                    <button class="btn btn-outline-primary" @onclick="@((Action)(() => Navigation.NavigateTo("/paciente")))">
+                        Consultar Paciente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lock"></i> Acceso Administrativo
+                    </h5>
+                    <p class="card-text">
+                        Acceso privilegiado con información confidencial. Requiere autenticación.
+                    </p>
+                    <button class="btn btn-outline-danger" @onclick="@((Action)(() => Navigation.NavigateTo("/paciente-admin")))">
+                        Vista Administrativa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle"></i> <strong>Bienvenido:</strong> Sistema de interoperabilidad hospitalaria. 
+                Gestiona pacientes, citas y servicios de forma integrada.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 mb-5">
+        <div class="col-12">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-network-wired"></i> Integración con Backend</h5>
+                    <p class="card-text">
+                        Esta aplicación está conectada con el Gateway API hospedado en <code class="bg-dark px-2 py-1">https://localhost:7000</code>
+                    </p>
+                    <p class="card-text">
+                        Los datos se obtienen de forma segura utilizando autenticación basada en headers para acceso administrativo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>

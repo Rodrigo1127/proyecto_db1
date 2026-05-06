@@ -1,0 +1,288 @@
+@page "/laboratorio"
+@using Hospital.Interop.Web.Services
+@inject LaboratorioService LaboratorioService
+@inject NavigationManager Navigation
+
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-4">
+                <i class="fas fa-flask"></i> Laboratorio
+            </h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-info btn-lg" @onclick="MostrarFormularioSolicitud">
+                <i class="fas fa-plus"></i> Nueva Solicitud
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(mensajeExito))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @mensajeExito
+            <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @mensajeError
+            <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+        </div>
+    }
+
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="solicitudes-tab" data-bs-toggle="tab" data-bs-target="#solicitudes" type="button" role="tab">
+                <i class="fas fa-file-invoice"></i> Solicitudes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="resultados-tab" data-bs-toggle="tab" data-bs-target="#resultados" type="button" role="tab">
+                <i class="fas fa-check-circle"></i> Resultados
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="solicitudes" role="tabpanel">
+            @if (mostrarFormularioSolicitud)
+            {
+                <div class="card mb-4 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5>Nueva Solicitud de Prueba</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Paciente ID</label>
+                                <input type="number" class="form-control" placeholder="ID del paciente" @bind="nuevaSolicitud.PacienteId" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Prueba</label>
+                                <input type="text" class="form-control" placeholder="Tipo de prueba" @bind="nuevaSolicitud.TipoPrueba" />
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Observaciones</label>
+                                <textarea class="form-control" rows="3" placeholder="Indicaciones especiales..." @bind="nuevaSolicitud.Observaciones"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-info" @onclick="GuardarSolicitud" disabled="@estaCargando">
+                                    @if (estaCargando)
+                                    {
+                                        <i class="fas fa-spinner fa-spin"></i> <span>Guardando...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-save"></i> <span>Enviar Solicitud</span>
+                                    }
+                                </button>
+                                <button class="btn btn-secondary" @onclick="CancelarSolicitud">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Paciente ID</th>
+                            <th>Prueba</th>
+                            <th>Fecha Solicitud</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (cargandoSolicitudes)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando solicitudes...
+                                </td>
+                            </tr>
+                        }
+                        else if (solicitudes == null || solicitudes.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    No hay solicitudes registradas
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var solicitud in solicitudes)
+                            {
+                                <tr>
+                                    <td>@solicitud.Id</td>
+                                    <td>@solicitud.PacienteId</td>
+                                    <td>@solicitud.TipoPrueba</td>
+                                    <td>@solicitud.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                                    <td><span class="badge bg-primary">@solicitud.Estado</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" @onclick="() => VerSolicitud(solicitud.Id)">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarSolicitud(solicitud.Id)">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="resultados" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitud ID</th>
+                            <th>Resultado</th>
+                            <th>Fecha Resultado</th>
+                            <th>Interpretación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (cargandoResultados)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando resultados...
+                                </td>
+                            </tr>
+                        }
+                        else if (resultados == null || resultados.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    No hay resultados registrados
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var resultado in resultados)
+                            {
+                                <tr>
+                                    <td>@resultado.Id</td>
+                                    <td>@resultado.SolicitudId</td>
+                                    <td>@resultado.Resultado</td>
+                                    <td>@resultado.FechaResultado.ToString("dd/MM/yyyy")</td>
+                                    <td>@resultado.Interpretacion</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" @onclick="() => VerResultado(resultado.Id)">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool mostrarFormularioSolicitud = false;
+    private bool estaCargando = false;
+    private bool cargandoSolicitudes = true;
+    private bool cargandoResultados = true;
+    private string mensajeExito = "";
+    private string mensajeError = "";
+    private List<LaboratorioService.SolicitudPruebaDTO> solicitudes = new();
+    private List<LaboratorioService.ResultadoPruebaDTO> resultados = new();
+    private LaboratorioService.SolicitudPruebaDTO nuevaSolicitud = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarSolicitudes();
+        await CargarResultados();
+    }
+
+    private async Task CargarSolicitudes()
+    {
+        cargandoSolicitudes = true;
+        solicitudes = await LaboratorioService.ObtenerSolicitudes();
+        cargandoSolicitudes = false;
+    }
+
+    private async Task CargarResultados()
+    {
+        cargandoResultados = true;
+        resultados = await LaboratorioService.ObtenerResultados();
+        cargandoResultados = false;
+    }
+
+    private void MostrarFormularioSolicitud()
+    {
+        mostrarFormularioSolicitud = true;
+        nuevaSolicitud = new();
+    }
+
+    private void CancelarSolicitud()
+    {
+        mostrarFormularioSolicitud = false;
+        nuevaSolicitud = new();
+    }
+
+    private async Task GuardarSolicitud()
+    {
+        estaCargando = true;
+        var exitoso = await LaboratorioService.CrearSolicitud(nuevaSolicitud);
+
+        if (exitoso)
+        {
+            mensajeExito = "Solicitud creada exitosamente";
+            mostrarFormularioSolicitud = false;
+            nuevaSolicitud = new();
+            await CargarSolicitudes();
+        }
+        else
+        {
+            mensajeError = "Error al crear la solicitud";
+        }
+
+        estaCargando = false;
+    }
+
+    private async Task EliminarSolicitud(int id)
+    {
+        if (await LaboratorioService.EliminarSolicitud(id))
+        {
+            mensajeExito = "Solicitud eliminada exitosamente";
+            await CargarSolicitudes();
+        }
+        else
+        {
+            mensajeError = "Error al eliminar la solicitud";
+        }
+    }
+
+    private void VerSolicitud(int id)
+    {
+        Navigation.NavigateTo($"/laboratorio/{id}");
+    }
+
+    private void VerResultado(int id)
+    {
+        Navigation.NavigateTo($"/resultados/{id}");
+    }
+}

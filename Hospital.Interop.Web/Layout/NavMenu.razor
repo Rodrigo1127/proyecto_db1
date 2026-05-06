@@ -1,0 +1,112 @@
+﻿<div class="top-row ps-3 navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">🏥 Hospital Interop Gateway</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-2 pt-2 border-top">
+            <div class="text-muted small px-2 mb-2">GESTIÓN</div>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="pacientes">
+                <i class="fas fa-users"></i> Pacientes
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="citas">
+                <i class="fas fa-calendar-alt"></i> Citas
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="laboratorio">
+                <i class="fas fa-flask"></i> Laboratorio
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="facturacion">
+                <i class="fas fa-receipt"></i> Facturación
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="departamentos">
+                <i class="fas fa-hospital"></i> Departamentos
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-2 pt-2 border-top">
+            <div class="text-muted small px-2 mb-2">CONSULTAS</div>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="paciente">
+                <i class="fas fa-search"></i> Buscar Paciente
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="paciente-admin">
+                <i class="fas fa-lock"></i> Acceso Admin
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-2 pt-2 border-top">
+            <div class="text-muted small px-2 mb-2">HERRAMIENTAS</div>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="api-docs">
+                <i class="fas fa-book"></i> Documentación API
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <button class="nav-link btn btn-link" style="width: 100%; text-align: left; color: inherit; text-decoration: none;" @onclick="OpenSwagger">
+                <i class="fas fa-external-link-alt"></i> Swagger (Nueva Pestaña)
+            </button>
+        </div>
+
+        <div class="nav-item px-3 mt-2 pt-2 border-top">
+            <div class="text-muted small px-2">
+                <p class="mb-1">Estado del Gateway:</p>
+                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Conectado</span>
+            </div>
+        </div>
+    </nav>
+</div>
+
+@inject IJSRuntime JS
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task OpenSwagger()
+    {
+        // Abre Swagger en una nueva pestaña usando JavaScript interop
+        // El API se ejecuta en https://localhost:7110
+        var swaggerUrl = "https://localhost:7110/swagger/index.html";
+        await JS.InvokeVoidAsync("window.open", swaggerUrl, "_blank");
+    }
+}

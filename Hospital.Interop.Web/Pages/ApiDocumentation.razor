@@ -1,0 +1,108 @@
+@page "/api-docs"
+@using System.Net.Http
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>API Documentation - Hospital Interop</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-book"></i> API Documentation
+            </h1>
+
+            <div class="alert alert-info">
+                <strong>Swagger API Gateway:</strong> La documentación interactiva está disponible en el panel de Swagger de la API.
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book"></i> Swagger UI
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>Accede a la documentación interactiva de Swagger para explorar todos los endpoints disponibles:</p>
+                    <button class="btn btn-primary btn-lg" @onclick="OpenSwaggerUI">
+                        <i class="fas fa-external-link-alt"></i> Abrir Swagger UI
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-code"></i> Endpoints Principales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Descripción</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/api/pacientes</code></td>
+                                <td>Gestión de Pacientes</td>
+                                <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/citas</code></td>
+                                <td>Gestión de Citas Médicas</td>
+                                <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/laboratorio</code></td>
+                                <td>Gestión de Laboratorio</td>
+                                <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/facturacion</code></td>
+                                <td>Gestión de Facturación</td>
+                                <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/departamentos</code></td>
+                                <td>Gestión de Departamentos</td>
+                                <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/gateway</code></td>
+                                <td>Gateway de Orquestación</td>
+                                <td><span class="badge bg-warning">GET, POST</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Información del Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Backend API URL:</strong> <code>https://localhost:7110</code></p>
+                    <p><strong>Framework:</strong> ASP.NET Core 8.0</p>
+                    <p><strong>Base de Datos:</strong> Entity Framework Core (In-Memory)</p>
+                    <p><strong>Documentación API:</strong> Swagger/OpenAPI v1</p>
+                    <p><strong>CORS:</strong> Habilitado para todas las peticiones</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task OpenSwaggerUI()
+    {
+        var swaggerUrl = "https://localhost:7110/swagger/index.html";
+        await JS.InvokeVoidAsync("window.open", swaggerUrl, "_blank");
+    }
+}
