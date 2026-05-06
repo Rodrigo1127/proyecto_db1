@@ -2,6 +2,10 @@ using Hospital.Interop.API.Data;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
+// Configurar el puerto para Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Controllers
 // Controllers con configuración de JSON para interoperabilidad
 builder.Services.AddControllers()
@@ -73,6 +77,10 @@ app.UseCors("AllowAll");
 // app.UseHttpsRedirection(); // Desactivado para facilitar interoperabilidad en redes locales
 
 app.UseAuthorization();
+
+// Redirigir raíz a Swagger
+app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapGet("/health", () => Results.Ok(new { status = "Running", timestamp = DateTime.UtcNow }));
 
 app.MapControllers();
 
