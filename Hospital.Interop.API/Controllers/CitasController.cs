@@ -63,12 +63,12 @@ namespace Hospital.Interop.API.Controllers
         }
 
         [HttpGet("paciente/{pacienteId}")]
-        public async Task<IActionResult> GetByPaciente(int id)
+        public async Task<IActionResult> GetByPaciente(int pacienteId)
         {
             try
             {
                 var citas = await _context.Citas
-                    .Where(c => c.PacienteId == id)
+                    .Where(c => c.PacienteId == pacienteId)
                     .OrderBy(c => c.Fecha)
                     .ToListAsync();
 

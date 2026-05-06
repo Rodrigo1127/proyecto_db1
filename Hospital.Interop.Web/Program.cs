@@ -9,10 +9,11 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configurar HttpClient para conectar con el backend API.
-// Usamos la dirección base del host para que funcione tanto en local como en la nube (misma origen)
+// En local usa appsettings.json, en producción usa el mismo host.
+var backendUrl = builder.Configuration["BackendUrl"] ?? builder.HostEnvironment.BaseAddress;
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+    BaseAddress = new Uri(backendUrl)
 });
 
 // Registrar servicios del frontend
