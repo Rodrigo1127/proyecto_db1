@@ -25,7 +25,7 @@ namespace Hospital.Interop.API.Models
 
         public DateTime FechaSolicitud { get; set; } = DateTime.Now;
 
-        public DateTime? FechaRealización { get; set; }
+        public DateTime? FechaRealizacion { get; set; }
 
         [StringLength(20)]
         public string Estado { get; set; } = "PENDIENTE"; // PENDIENTE, REALIZADO, CANCELADO

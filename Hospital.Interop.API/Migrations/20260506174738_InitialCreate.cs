@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -180,7 +180,7 @@ namespace Hospital.Interop.API.Migrations
                     TipoPruebaId = table.Column<int>(type: "integer", nullable: false),
                     TecnicoId = table.Column<int>(type: "integer", nullable: true),
                     FechaSolicitud = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FechaRealización = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    FechaRealizacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Estado = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     Observaciones = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CostoFinal = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
