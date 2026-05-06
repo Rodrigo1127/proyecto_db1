@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hospital.Interop.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class RailwayCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,19 +60,6 @@ namespace Hospital.Interop.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Examenes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Facturas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Monto = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Facturas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -161,6 +148,29 @@ namespace Hospital.Interop.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Facturas",
+                columns: table => new
+                {
+                    FacturaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PacienteId = table.Column<int>(type: "integer", nullable: false),
+                    Monto = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    FechaFactura = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Estado = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Concepto = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Facturas", x => x.FacturaId);
+                    table.ForeignKey(
+                        name: "FK_Facturas_Pacientes_PacienteId",
+                        column: x => x.PacienteId,
+                        principalTable: "Pacientes",
+                        principalColumn: "PacienteId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SolicitudesPrueba",
                 columns: table => new
                 {
@@ -224,6 +234,11 @@ namespace Hospital.Interop.API.Migrations
                         principalColumn: "SolicitudPruebaId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Facturas_PacienteId",
+                table: "Facturas",
+                column: "PacienteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResultadosPrueba_SolicitudPruebaId",

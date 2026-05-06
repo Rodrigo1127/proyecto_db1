@@ -10,7 +10,7 @@ namespace Hospital.Interop.API.Data
             var optionsBuilder = new DbContextOptionsBuilder<HospitalDbContext>();
 
             optionsBuilder.UseNpgsql(
-                "Host=localhost;Port=5432;Database=proyecto_123;Username=postgres;Password=123456789"
+                "Host=trolley.proxy.rlwy.net;Port=52558;Database=railway;Username=postgres;Password=FbtiVlVhxQIMhPYVEldwwEjnqjNtKKjr;SSL Mode=Require;Trust Server Certificate=true"
             );
 
             return new HospitalDbContext(optionsBuilder.Options);

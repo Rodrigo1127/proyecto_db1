@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hospital.Interop.API.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20260506115822_UpdateFacturaSchema")]
-    partial class UpdateFacturaSchema
+    [Migration("20260506141258_RailwayCreate")]
+    partial class RailwayCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
