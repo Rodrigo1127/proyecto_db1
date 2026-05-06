@@ -85,11 +85,15 @@ app.UseExceptionHandler(errorApp =>
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    // Usamos ruta relativa para que funcione tras proxies (Railway, Nginx, etc)
-    c.SwaggerEndpoint("v1/swagger.json", "Proyecto_H API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Proyecto_H API V1");
     c.RoutePrefix = "swagger";
 });
 // --------------------------------
+
+// --- SOPORTE PARA EL FRONTEND (BLAZOR WASM) ---
+app.UseDefaultFiles();
+app.UseStaticFiles();
+// ---------------------------------------------
 
 // 🔴 ACTIVAR CORS (ANTES de MapControllers)
 app.UseCors("AllowAll");
@@ -98,9 +102,11 @@ app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
-// Redirigir raíz a Swagger
-app.MapGet("/", () => Results.Redirect("/swagger"));
+// Health Check
 app.MapGet("/health", () => Results.Ok(new { status = "Running", timestamp = DateTime.UtcNow }));
+
+// Fallback para Blazor (permite que el routing del cliente funcione)
+app.MapFallbackToFile("index.html");
 
 app.MapControllers();
 
