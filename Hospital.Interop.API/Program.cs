@@ -50,6 +50,25 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// --- APLICAR MIGRACIONES AL INICIAR (Para la nube) ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<HospitalDbContext>();
+        if (context.Database.GetPendingMigrations().Any())
+        {
+            context.Database.Migrate();
+        }
+    }
+    catch (Exception ex)
+    {
+        // Si falla la migración, lo registramos pero dejamos que la app intente iniciar
+        Console.WriteLine($"Error aplicando migraciones: {ex.Message}");
+    }
+}
+
 // Global Error Handling para Interoperabilidad
 app.UseExceptionHandler(errorApp =>
 {
@@ -66,8 +85,9 @@ app.UseExceptionHandler(errorApp =>
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Proyecto_H API V1");
-
+    // Usamos ruta relativa para que funcione tras proxies (Railway, Nginx, etc)
+    c.SwaggerEndpoint("v1/swagger.json", "Proyecto_H API V1");
+    c.RoutePrefix = "swagger";
 });
 // --------------------------------
 
