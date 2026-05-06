@@ -1,305 +1,201 @@
 @page "/facturacion"
-@using Hospital.Interop.Web.Services
 @inject FacturacionService FacturacionService
-@inject NavigationManager Navigation
+@inject PacienteService PacienteService
+@using Hospital.Interop.Web.Models
+@using PacienteModel = Hospital.Interop.Web.Models.Paciente
 
-<div class="container-fluid mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="display-4">
-                <i class="fas fa-receipt"></i> Facturaci髇
-            </h1>
+<PageTitle>Facturaci贸n - Hospital Interop</PageTitle>
+
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-6 fw-bold mb-1">Facturaci贸n y Pagos</h1>
+            <p class="text-secondary lead mb-0">Control financiero y gesti贸n de comprobantes.</p>
         </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-warning btn-lg" @onclick="MostrarFormularioFactura">
-                <i class="fas fa-plus"></i> Nueva Factura
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <button class="btn btn-primary btn-lg shadow-md" @onclick="MostrarNuevo">
+                <i class="fas fa-file-invoice-dollar me-2"></i>Generar Factura
             </button>
         </div>
     </div>
 
-    @if (!string.IsNullOrEmpty(mensajeExito))
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @mensajeExito
-            <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
-        </div>
-    }
-
-    @if (!string.IsNullOrEmpty(mensajeError))
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> @mensajeError
-            <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
-        </div>
-    }
-
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-light border-0">
-                <div class="card-body text-center">
-                    <i class="fas fa-file-invoice-dollar fa-3x text-warning mb-3"></i>
-                    <h6 class="card-title text-muted">Total Facturado</h6>
-                    <h3>$@totalFacturado.ToString("N2")</h3>
-                </div>
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card p-3 border-0 shadow-sm bg-white h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-2">Total Recaudado</div>
+                <div class="h3 fw-bold text-primary mb-0">$ @facturas?.Where(f => f.Estado == "Pagada").Sum(f => f.Monto).ToString("N2")</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-light border-0">
-                <div class="card-body text-center">
-                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                    <h6 class="card-title text-muted">Pagadas</h6>
-                    <h3>@facturasPagadas</h3>
-                </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card p-3 border-0 shadow-sm bg-white h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-2">Pendiente Cobro</div>
+                <div class="h3 fw-bold text-warning mb-0">$ @facturas?.Where(f => f.Estado == "Pendiente").Sum(f => f.Monto).ToString("N2")</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-light border-0">
-                <div class="card-body text-center">
-                    <i class="fas fa-hourglass-half fa-3x text-warning mb-3"></i>
-                    <h6 class="card-title text-muted">Pendientes</h6>
-                    <h3>@facturasPendientes</h3>
-                </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card p-3 border-0 shadow-sm bg-white h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-2">Facturas Pagadas</div>
+                <div class="h3 fw-bold text-success mb-0">@facturas?.Count(f => f.Estado == "Pagada")</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-light border-0">
-                <div class="card-body text-center">
-                    <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
-                    <h6 class="card-title text-muted">Vencidas</h6>
-                    <h3>@facturasVencidas</h3>
-                </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card p-3 border-0 shadow-sm bg-white h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-2">Pacientes Atendidos</div>
+                <div class="h3 fw-bold text-info mb-0">@facturas?.Select(f => f.PacienteId).Distinct().Count()</div>
             </div>
         </div>
     </div>
 
-    @if (mostrarFormularioFactura)
+    <!-- Form -->
+    @if (mostrarFormulario)
     {
-        <div class="card mb-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                <h5>Crear Nueva Factura</h5>
+        <div class="card border-0 shadow-lg mb-5 animate-fade-in">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="fw-bold mb-0">Nueva Emisi贸n de Factura</h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Paciente ID</label>
-                        <input type="number" class="form-control" placeholder="ID del paciente" @bind="nuevaFactura.PacienteId" />
+            <div class="card-body p-4 p-md-5">
+                <EditForm Model="@nuevaFactura" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Paciente</label>
+                            <InputSelect @bind-Value="nuevaFactura.PacienteId" class="form-select">
+                                <option value="0">-- Seleccione Paciente --</option>
+                                @if (pacientes != null)
+                                {
+                                    @foreach (var p in pacientes)
+                                    {
+                                        <option value="@p.PacienteId">@p.Nombre (@p.Documento)</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Monto ($)</label>
+                            <InputNumber @bind-Value="nuevaFactura.Monto" class="form-control" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Concepto / Servicio</label>
+                            <InputText @bind-Value="nuevaFactura.Concepto" class="form-control" placeholder="Ej: Consulta M茅dica General" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase">M茅todo de Pago</label>
+                            <InputSelect @bind-Value="nuevaFactura.MetodoPago" class="form-select">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta">Tarjeta de Cr茅dito/D茅bito</option>
+                                <option value="Seguro">Seguro M茅dico</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Estado</label>
+                            <InputSelect @bind-Value="nuevaFactura.Estado" class="form-select">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Pagada">Pagada</option>
+                                <option value="Anulada">Anulada</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Fecha Factura</label>
+                            <InputDate @bind-Value="nuevaFactura.FechaFactura" class="form-control" />
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Monto</label>
-                        <input type="number" class="form-control" placeholder="0.00" step="0.01" @bind="nuevaFactura.Monto" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Concepto</label>
-                        <input type="text" class="form-control" placeholder="Concepto de la factura" @bind="nuevaFactura.Concepto" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select" @bind="nuevaFactura.Estado">
-                            <option selected>Pendiente</option>
-                            <option>Pagada</option>
-                            <option>Vencida</option>
-                            <option>Cancelada</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-warning text-dark" @onclick="GuardarFactura" disabled="@estaCargando">
-                            @if (estaCargando)
-                            {
-                                <i class="fas fa-spinner fa-spin"></i> <span>Guardando...</span>
-                            }
-                            else
-                            {
-                                <i class="fas fa-save"></i> <span>Crear Factura</span>
-                            }
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light px-4" @onclick="() => mostrarFormulario = false">Cerrar</button>
+                        <button type="submit" class="btn btn-dark px-5 shadow-sm">
+                            <i class="fas fa-print me-2"></i>Emitir Comprobante
                         </button>
-                        <button class="btn btn-secondary" @onclick="CancelarFactura">
-                            <i class="fas fa-times"></i> Cancelar
-                        </button>
                     </div>
-                </div>
+                </EditForm>
             </div>
         </div>
     }
 
-    <div class="card">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5>Listado de Facturas</h5>
-            <div class="input-group" style="width: 300px;">
-                <input type="search" class="form-control" placeholder="Buscar factura..." />
-                <button class="btn btn-outline-secondary" type="button">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>N鷐ero</th>
-                            <th>Paciente ID</th>
-                            <th>Monto</th>
-                            <th>Concepto</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (cargandoFacturas)
+    <!-- Table -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">No. Factura</th>
+                        <th>Paciente ID</th>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (facturas == null)
+                    {
+                        <tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var factura in facturas)
                         {
                             <tr>
-                                <td colspan="7" class="text-center text-muted">
-                                    <i class="fas fa-spinner fa-spin"></i> Cargando facturas...
+                                <td class="ps-4">
+                                    <div class="fw-bold text-primary">#FAC-@factura.FacturaId.ToString("D5")</div>
+                                    <div class="small text-muted">@factura.MetodoPago</div>
+                                </td>
+                                <td><span class="fw-bold">@factura.PacienteId</span></td>
+                                <td>@factura.FechaFactura.ToShortDateString()</td>
+                                <td><span class="fw-bold text-dark">$ @factura.Monto.ToString("N2")</span></td>
+                                <td>
+                                    <span class="badge @(factura.Estado == "Pagada" ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning")">
+                                        @factura.Estado
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-light border"><i class="fas fa-file-pdf text-danger"></i></button>
+                                    <button class="btn btn-sm btn-light border ms-1"><i class="fas fa-print"></i></button>
                                 </td>
                             </tr>
                         }
-                        else if (facturas == null || facturas.Count == 0)
-                        {
-                            <tr>
-                                <td colspan="7" class="text-center text-muted">
-                                    No hay facturas registradas
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            @foreach (var factura in facturas)
-                            {
-                                <tr>
-                                    <td>FAC-@factura.Id.ToString("D3")</td>
-                                    <td>@factura.PacienteId</td>
-                                    <td>$@factura.Monto.ToString("N2")</td>
-                                    <td>@factura.Concepto</td>
-                                    <td>@factura.Fecha.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        @if (factura.Estado == "Pagada")
-                                        {
-                                            <span class="badge bg-success">@factura.Estado</span>
-                                        }
-                                        else if (factura.Estado == "Pendiente")
-                                        {
-                                            <span class="badge bg-warning text-dark">@factura.Estado</span>
-                                        }
-                                        else if (factura.Estado == "Vencida")
-                                        {
-                                            <span class="badge bg-danger">@factura.Estado</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">@factura.Estado</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" @onclick="() => VerFactura(factura.Id)">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" @onclick="() => EliminarFactura(factura.Id)">
-                                            <i class="fas fa-trash"></i> Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<style>
+    .bg-success-subtle { background-color: #dcfce7; color: #166534; }
+    .bg-warning-subtle { background-color: #fef3c7; color: #92400e; }
+</style>
+
 @code {
-    private bool mostrarFormularioFactura = false;
-    private bool estaCargando = false;
-    private bool cargandoFacturas = true;
-    private string mensajeExito = "";
-    private string mensajeError = "";
-    private List<FacturacionService.FacturaDTO> facturas = new();
-    private FacturacionService.FacturaDTO nuevaFactura = new();
-    private decimal totalFacturado = 0;
-    private int facturasPagadas = 0;
-    private int facturasPendientes = 0;
-    private int facturasVencidas = 0;
+    private List<Factura> facturas;
+    private List<PacienteModel> pacientes;
+    private Factura nuevaFactura = new Factura();
+    private bool mostrarFormulario = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarFacturas();
+        await CargarDatos();
     }
 
-    private async Task CargarFacturas()
+    private async Task CargarDatos()
     {
-        cargandoFacturas = true;
-        facturas = await FacturacionService.ObtenerFacturas();
-
-        totalFacturado = facturas.Sum(f => f.Monto);
-        facturasPagadas = facturas.Count(f => f.Estado == "Pagada");
-        facturasPendientes = facturas.Count(f => f.Estado == "Pendiente");
-        facturasVencidas = facturas.Count(f => f.Estado == "Vencida");
-
-        cargandoFacturas = false;
+        facturas = await FacturacionService.ObtenerTodasFacturas();
+        pacientes = await PacienteService.ObtenerTodosPacientes();
     }
 
-    private void MostrarFormularioFactura()
+    private void MostrarNuevo()
     {
-        mostrarFormularioFactura = true;
-        nuevaFactura = new FacturacionService.FacturaDTO 
-        { 
-            Fecha = DateTime.Now,
-            Estado = "Pendiente"
-        };
+        nuevaFactura = new Factura { FechaFactura = DateTime.Today, Estado = "Pendiente", MetodoPago = "Efectivo" };
+        mostrarFormulario = true;
     }
 
-    private void CancelarFactura()
+    private async Task Guardar()
     {
-        mostrarFormularioFactura = false;
-        nuevaFactura = new();
-    }
-
-    private async Task GuardarFactura()
-    {
-        estaCargando = true;
-
-        if (nuevaFactura.PacienteId <= 0 || nuevaFactura.Monto <= 0)
+        if (await FacturacionService.CrearFactura(nuevaFactura))
         {
-            mensajeError = "Los datos de la factura son inv醠idos";
-            estaCargando = false;
-            return;
+            mostrarFormulario = false;
+            await CargarDatos();
         }
-
-        var exitoso = await FacturacionService.CrearFactura(nuevaFactura);
-
-        if (exitoso)
-        {
-            mensajeExito = "Factura creada exitosamente";
-            mostrarFormularioFactura = false;
-            nuevaFactura = new();
-            await CargarFacturas();
-        }
-        else
-        {
-            mensajeError = "Error al crear la factura";
-        }
-
-        estaCargando = false;
-    }
-
-    private async Task EliminarFactura(int id)
-    {
-        if (await FacturacionService.EliminarFactura(id))
-        {
-            mensajeExito = "Factura eliminada exitosamente";
-            await CargarFacturas();
-        }
-        else
-        {
-            mensajeError = "Error al eliminar la factura";
-        }
-    }
-
-    private void VerFactura(int id)
-    {
-        Navigation.NavigateTo($"/facturacion/{id}");
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Hospital.Interop.API.Services;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Interop.API.Data;
@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/laboratorio")]
+    [Tags("Laboratorio Clínico")]
     public class LaboratorioController : ControllerBase
     {
         private readonly OrquestadorService _service;

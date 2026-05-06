@@ -1,16 +1,44 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<div class="page d-flex">
+    <NavMenu />
 
-        <article class="content px-4">
-            @Body
+    <main class="main flex-grow-1">
+        <header class="top-row d-flex justify-content-between align-items-center bg-white shadow-sm px-4">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-bars text-muted d-md-none"></i>
+                <span class="text-muted fw-medium">Hospital Management System v1.0</span>
+            </div>
+            
+            <div class="d-flex align-items-center gap-4">
+                <div class="d-none d-md-flex align-items-center gap-2 text-muted small">
+                    <i class="fas fa-clock"></i>
+                    <span>@DateTime.Now.ToString("dd MMM yyyy, HH:mm")</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm rounded-circle p-2 shadow-sm" type="button">
+                        <i class="fas fa-user-md text-primary"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <article class="content p-4">
+            <div class="container-fluid">
+                @Body
+            </div>
         </article>
     </main>
 </div>
+
+<style>
+    /* Ensure the main container takes full width when sidebar is present */
+    .page {
+        min-height: 100vh;
+    }
+    
+    main {
+        background-color: var(--bg-color);
+        min-height: 100vh;
+    }
+</style>

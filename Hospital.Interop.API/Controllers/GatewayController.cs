@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Hospital.Interop.API.Models;
 using Hospital.Interop.API.Models.DTOs;
 using Hospital.Interop.API.Integrations;
@@ -10,6 +10,7 @@ namespace Hospital.Interop.API.Controllers
     [ApiController]
     [Route("api/gateway")]
     [Produces("application/json")]
+    [Tags("Administración y Sistema")]
     public class GatewayController : ControllerBase
     {
         // Clientes de servicios clínicos

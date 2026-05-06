@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/resultados-prueba")]
+    [Tags("Laboratorio Clínico")]
     public class ResultadosPruebaController : ControllerBase
     {
         private readonly HospitalDbContext _context;

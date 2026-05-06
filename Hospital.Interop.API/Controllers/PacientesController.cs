@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Interop.API.Data;
 using Hospital.Interop.API.Models;
@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/pacientes")]
+    [Tags("Gestión de Pacientes")]
     public class PacientesController : ControllerBase
     {
         private readonly HospitalDbContext _context;

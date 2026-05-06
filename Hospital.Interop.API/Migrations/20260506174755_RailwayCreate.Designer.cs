@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hospital.Interop.API.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20260506141258_RailwayCreate")]
+    [Migration("20260506174755_RailwayCreate")]
     partial class RailwayCreate
     {
         /// <inheritdoc />

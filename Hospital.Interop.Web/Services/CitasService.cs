@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Hospital.Interop.Web.Models;
 
 namespace Hospital.Interop.Web.Services
 {
@@ -6,50 +7,38 @@ namespace Hospital.Interop.Web.Services
     {
         private readonly HttpClient _httpClient;
 
-        public class CitaDTO
-        {
-            public int Id { get; set; }
-            public int PacienteId { get; set; }
-            public DateTime Fecha { get; set; }
-            public string Hora { get; set; }
-            public string Departamento { get; set; }
-            public string Estado { get; set; }
-            public string Observaciones { get; set; }
-        }
-
         public CitasService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<CitaDTO>> ObtenerCitas()
+        public async Task<List<Cita>> ObtenerTodasCitas()
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<CitaDTO>>("api/citas");
-                return response ?? new List<CitaDTO>();
+                return await _httpClient.GetFromJsonAsync<List<Cita>>("api/citas") ?? new List<Cita>();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener citas: {ex.Message}");
-                return new List<CitaDTO>();
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<Cita>();
             }
         }
 
-        public async Task<CitaDTO> ObtenerCita(int id)
+        public async Task<Cita?> ObtenerCitaPorId(int id)
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<CitaDTO>($"api/citas/{id}");
+                return await _httpClient.GetFromJsonAsync<Cita>($"api/citas/{id}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener cita: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return null;
             }
         }
 
-        public async Task<bool> CrearCita(CitaDTO cita)
+        public async Task<bool> CrearCita(Cita cita)
         {
             try
             {
@@ -58,12 +47,12 @@ namespace Hospital.Interop.Web.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al crear cita: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
         }
 
-        public async Task<bool> ActualizarCita(int id, CitaDTO cita)
+        public async Task<bool> ActualizarCita(int id, Cita cita)
         {
             try
             {
@@ -72,7 +61,7 @@ namespace Hospital.Interop.Web.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al actualizar cita: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
         }
@@ -86,7 +75,7 @@ namespace Hospital.Interop.Web.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al eliminar cita: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
         }

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+Ôªøusing Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Interop.API.Data;
 using Hospital.Interop.API.Models;
@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
 	[ApiController]
 	[Route("api/solicitudes-prueba")]
+    [Tags("Laboratorio Cl√≠nico")]
 	public class SolicitudesPruebaController : ControllerBase
 	{
 		private readonly HospitalDbContext _context;
@@ -16,7 +17,7 @@ namespace Hospital.Interop.API.Controllers
 			_context = context;
 		}
 
-		// CRUD B¡SICO
+		// CRUD B√ÅSICO
 		[HttpGet]
 		[ProducesResponseType(typeof(List<SolicitudPrueba>), 200)]
 		public async Task<IActionResult> GetAll()
@@ -127,7 +128,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 2: AgrupaciÛn con conteo
+		// CONSULTA 2: Agrupaci√≥n con conteo
 		[HttpGet("mis/pruebas-por-tipo-conteo")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> PruebasPorTipoConteo()
@@ -145,7 +146,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 3: AgrupaciÛn con suma
+		// CONSULTA 3: Agrupaci√≥n con suma
 		[HttpGet("mis/ingresos-por-prueba")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> IngresosPorPrueba()
@@ -164,7 +165,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 4: B˙squeda filtrada por estado
+		// CONSULTA 4: B√∫squeda filtrada por estado
 		[HttpGet("mis/solicitudes-por-estado/{estado}")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> SolicitudesPorEstado(string estado)
@@ -186,7 +187,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 5: Registros que no tienen relaciÛn en otra tabla
+		// CONSULTA 5: Registros que no tienen relaci√≥n en otra tabla
 		[HttpGet("mis/pruebas-sin-resultado")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> PruebasSinResultado()
@@ -211,7 +212,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 6: Trabajo por tÈcnico
+		// CONSULTA 6: Trabajo por t√©cnico
 		[HttpGet("mis/pruebas-por-tecnico")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> PruebasPorTecnico()
@@ -251,7 +252,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 8: Pacientes con pruebas m˙ltiples
+		// CONSULTA 8: Pacientes con pruebas m√∫ltiples
 		[HttpGet("mis/pacientes-con-multiples-pruebas")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> PacientesConMultiplesPruebas()
@@ -318,7 +319,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 11: DistribuciÛn de pruebas por estado
+		// CONSULTA 11: Distribuci√≥n de pruebas por estado
 		[HttpGet("mis/distribucion-estado-pruebas")]
 		public async Task<IActionResult> DistribucionEstadoPruebas()
 		{
@@ -340,7 +341,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 12: TÈcnicos sin asignaciones
+		// CONSULTA 12: T√©cnicos sin asignaciones
 		[HttpGet("mis/tecnicos-sin-asignaciones")]
 		public async Task<IActionResult> TecnicosSinAsignaciones()
 		{
@@ -388,7 +389,7 @@ namespace Hospital.Interop.API.Controllers
 			return Ok(datos);
 		}
 
-		// CONSULTA 14: Eficiencia por tÈcnico
+		// CONSULTA 14: Eficiencia por t√©cnico
 		[HttpGet("mis/eficiencia-por-tecnico")]
 		[ProducesResponseType(typeof(List<object>), 200)]
 		public async Task<IActionResult> EficienciaPorTecnico()

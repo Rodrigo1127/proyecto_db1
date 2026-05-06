@@ -1,4 +1,4 @@
-@page "/api-docs"
+Ôªø@page "/api-docs"
 @using System.Net.Http
 @inject HttpClient Http
 @inject IJSRuntime JS
@@ -13,7 +13,7 @@
             </h1>
 
             <div class="alert alert-info">
-                <strong>Swagger API Gateway:</strong> La documentaciÛn interactiva est· disponible en el panel de Swagger de la API.
+                <strong>Swagger API Gateway:</strong> La documentaci√≥n interactiva est√° disponible en el panel de Swagger de la API.
             </div>
 
             <div class="card mb-4">
@@ -23,7 +23,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <p>Accede a la documentaciÛn interactiva de Swagger para explorar todos los endpoints disponibles:</p>
+                    <p>Accede a la documentaci√≥n interactiva de Swagger para explorar todos los endpoints disponibles:</p>
                     <button class="btn btn-primary btn-lg" @onclick="OpenSwaggerUI">
                         <i class="fas fa-external-link-alt"></i> Abrir Swagger UI
                     </button>
@@ -41,39 +41,39 @@
                         <thead>
                             <tr>
                                 <th>Endpoint</th>
-                                <th>DescripciÛn</th>
+                                <th>Descripci√≥n</th>
                                 <th>Tipo</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><code>/api/pacientes</code></td>
-                                <td>GestiÛn de Pacientes</td>
+                                <td>Gesti√≥n de Pacientes</td>
                                 <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
                             </tr>
                             <tr>
                                 <td><code>/api/citas</code></td>
-                                <td>GestiÛn de Citas MÈdicas</td>
+                                <td>Gesti√≥n de Citas M√©dicas</td>
                                 <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
                             </tr>
                             <tr>
                                 <td><code>/api/laboratorio</code></td>
-                                <td>GestiÛn de Laboratorio</td>
+                                <td>Gesti√≥n de Laboratorio</td>
                                 <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
                             </tr>
                             <tr>
                                 <td><code>/api/facturacion</code></td>
-                                <td>GestiÛn de FacturaciÛn</td>
+                                <td>Gesti√≥n de Facturaci√≥n</td>
                                 <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
                             </tr>
                             <tr>
                                 <td><code>/api/departamentos</code></td>
-                                <td>GestiÛn de Departamentos</td>
+                                <td>Gesti√≥n de Departamentos</td>
                                 <td><span class="badge bg-info">GET, POST, PUT, DELETE</span></td>
                             </tr>
                             <tr>
                                 <td><code>/api/gateway</code></td>
-                                <td>Gateway de OrquestaciÛn</td>
+                                <td>Gateway de Orquestaci√≥n</td>
                                 <td><span class="badge bg-warning">GET, POST</span></td>
                             </tr>
                         </tbody>
@@ -84,14 +84,14 @@
             <div class="card">
                 <div class="card-header bg-warning text-dark">
                     <h5 class="mb-0">
-                        <i class="fas fa-info-circle"></i> InformaciÛn del Sistema
+                        <i class="fas fa-info-circle"></i> Informaci√≥n del Sistema
                     </h5>
                 </div>
                 <div class="card-body">
                     <p><strong>Backend API URL:</strong> <code>https://localhost:7110</code></p>
                     <p><strong>Framework:</strong> ASP.NET Core 8.0</p>
                     <p><strong>Base de Datos:</strong> Entity Framework Core (In-Memory)</p>
-                    <p><strong>DocumentaciÛn API:</strong> Swagger/OpenAPI v1</p>
+                    <p><strong>Documentaci√≥n API:</strong> Swagger/OpenAPI v1</p>
                     <p><strong>CORS:</strong> Habilitado para todas las peticiones</p>
                 </div>
             </div>
@@ -102,7 +102,9 @@
 @code {
     private async Task OpenSwaggerUI()
     {
-        var swaggerUrl = "https://localhost:7110/swagger/index.html";
+        var baseUrl = Http.BaseAddress?.ToString().TrimEnd('/') ?? "http://localhost:5225"; var swaggerUrl = "$baseUrl/swagger/index.html";
         await JS.InvokeVoidAsync("window.open", swaggerUrl, "_blank");
     }
 }
+
+

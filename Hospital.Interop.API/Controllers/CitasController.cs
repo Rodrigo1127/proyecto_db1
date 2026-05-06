@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Interop.API.Data;
 using Hospital.Interop.API.Models;
@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/citas")]
+    [Tags("Citas Médicas")]
     public class CitasController : ControllerBase
     {
         private readonly HospitalDbContext _context;
@@ -62,12 +63,12 @@ namespace Hospital.Interop.API.Controllers
         }
 
         [HttpGet("paciente/{pacienteId}")]
-        public async Task<IActionResult> GetByPaciente(int pacienteId)
+        public async Task<IActionResult> GetByPaciente(int id)
         {
             try
             {
                 var citas = await _context.Citas
-                    .Where(c => c.PacienteId == pacienteId)
+                    .Where(c => c.PacienteId == id)
                     .OrderBy(c => c.Fecha)
                     .ToListAsync();
 
@@ -80,6 +81,52 @@ namespace Hospital.Interop.API.Controllers
                     mensaje = "Error al obtener citas del paciente",
                     detalle = ex.Message,
                     inner = ex.InnerException?.Message
+                });
+            }
+        }
+
+        [HttpGet("buscar")]
+        public async Task<IActionResult> Buscar(
+            [FromQuery] int? pacienteId = null,
+            [FromQuery] string? estado = null,
+            [FromQuery] string? departamento = null,
+            [FromQuery] DateTime? fechaInicio = null,
+            [FromQuery] DateTime? fechaFin = null)
+        {
+            try
+            {
+                var query = _context.Citas.AsQueryable();
+
+                if (pacienteId.HasValue)
+                    query = query.Where(c => c.PacienteId == pacienteId.Value);
+
+                if (!string.IsNullOrWhiteSpace(estado))
+                    query = query.Where(c => c.Estado == estado);
+
+                if (!string.IsNullOrWhiteSpace(departamento))
+                    query = query.Where(c => c.Departamento == departamento);
+
+                if (fechaInicio.HasValue)
+                {
+                    var inicio = DateTime.SpecifyKind(fechaInicio.Value, DateTimeKind.Utc);
+                    query = query.Where(c => c.Fecha >= inicio);
+                }
+
+                if (fechaFin.HasValue)
+                {
+                    var fin = DateTime.SpecifyKind(fechaFin.Value, DateTimeKind.Utc);
+                    query = query.Where(c => c.Fecha <= fin);
+                }
+
+                var citas = await query.OrderBy(c => c.Fecha).ToListAsync();
+                return Ok(citas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Error al buscar citas",
+                    detalle = ex.Message
                 });
             }
         }

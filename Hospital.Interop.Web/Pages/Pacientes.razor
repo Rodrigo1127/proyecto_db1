@@ -1,188 +1,202 @@
 @page "/pacientes"
-@using Hospital.Interop.Web.Services
+@inject PacienteService PacienteService
 @using Hospital.Interop.Web.Models
 @using PacienteModel = Hospital.Interop.Web.Models.Paciente
-@inject PacienteService PacienteService
-@inject NavigationManager Navigation
 
-<div class="container-fluid mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="display-4">
-                <i class="fas fa-users"></i> Gesti髇 de Pacientes
-            </h1>
+<PageTitle>Pacientes - Hospital Interop</PageTitle>
+
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-6 fw-bold mb-1">Directorio de Pacientes</h1>
+            <p class="text-secondary lead mb-0">Gestione el historial y registros m茅dicos centrales.</p>
         </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary btn-lg" @onclick="MostrarFormularioNuevo">
-                <i class="fas fa-plus"></i> Nuevo Paciente
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <button class="btn btn-primary btn-lg shadow-md" @onclick="MostrarFormularioNuevo">
+                <i class="fas fa-plus-circle me-2"></i>Registrar Paciente
             </button>
         </div>
     </div>
 
-    @if (!string.IsNullOrEmpty(mensajeError))
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> @mensajeError
-            <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
-        </div>
-    }
-
+    <!-- Alert Messaging -->
     @if (!string.IsNullOrEmpty(mensajeExito))
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @mensajeExito
+        <div class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center p-3 animate-fade-in" style="border-radius: 0.75rem;">
+            <i class="fas fa-check-circle fa-lg me-3"></i>
+            <div class="flex-grow-1 fw-medium">@mensajeExito</div>
             <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
         </div>
     }
 
+    <!-- Form Section -->
     @if (mostrarFormulario)
     {
-        <div class="card mb-4 border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5>
-                    @(nuevoPaciente.PacienteId > 0 ? "Editar Paciente" : "Registrar Nuevo Paciente")
+        <div class="card border-0 shadow-lg mb-5 animate-fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas @(nuevoPaciente.PacienteId > 0 ? "fa-user-edit" : "fa-user-plus") text-primary me-2"></i>
+                    @(nuevoPaciente.PacienteId > 0 ? "Editar Expediente" : "Nuevo Registro")
                 </h5>
+                <button class="btn btn-light btn-sm rounded-circle" @onclick="CancelarFormulario"><i class="fas fa-times"></i></button>
             </div>
-
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" placeholder="Nombre del paciente" @bind="nuevoPaciente.Nombre" />
+            <div class="card-body p-4 p-md-5">
+                <EditForm Model="@nuevoPaciente" OnValidSubmit="GuardarPaciente">
+                    <DataAnnotationsValidator />
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-uppercase small fw-bold text-muted mb-2">Nombre Completo</label>
+                            <InputText @bind-Value="nuevoPaciente.Nombre" class="form-control" placeholder="Nombre completo del paciente" />
+                            <ValidationMessage For="@(() => nuevoPaciente.Nombre)" class="text-danger small" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-uppercase small fw-bold text-muted mb-2">Documento Identidad</label>
+                            <InputText @bind-Value="nuevoPaciente.Documento" class="form-control" placeholder="DNI / Pasaporte / CUI" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-uppercase small fw-bold text-muted mb-2">Correo Electr贸nico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                <InputText @bind-Value="nuevoPaciente.Email" class="form-control border-start-0" placeholder="ejemplo@correo.com" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-uppercase small fw-bold text-muted mb-2">Tel茅fono de Contacto</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone text-muted"></i></span>
+                                <InputText @bind-Value="nuevoPaciente.Telefono" class="form-control border-start-0" placeholder="+502 XXXX XXXX" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-uppercase small fw-bold text-muted mb-2">Direcci贸n de Residencia</label>
+                            <InputTextArea @bind-Value="nuevoPaciente.Direccion" class="form-control" rows="2" placeholder="Direcci贸n completa..." />
+                        </div>
                     </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Documento (C閐ula)</label>
-                        <input type="text" class="form-control" placeholder="C閐ula" @bind="nuevoPaciente.Documento" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="correo@ejemplo.com" @bind="nuevoPaciente.Email" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Tel閒ono</label>
-                        <input type="tel" class="form-control" placeholder="+591 XXX XXX XX" @bind="nuevoPaciente.Telefono" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Direcci髇</label>
-                        <input type="text" class="form-control" placeholder="Direcci髇 del paciente" @bind="nuevoPaciente.Direccion" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" @bind="nuevoPaciente.FechaNacimiento" />
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-success" @onclick="GuardarPaciente" disabled="@estaCargando">
+                    <div class="mt-5 pt-3 d-flex justify-content-end gap-3">
+                        <button type="button" class="btn btn-light px-4" @onclick="CancelarFormulario">Descartar</button>
+                        <button type="submit" class="btn btn-primary px-5 shadow-sm" disabled="@estaCargando">
                             @if (estaCargando)
                             {
-                                <span><i class="fas fa-spinner fa-spin"></i> Guardando...</span>
+                                <span class="spinner-border spinner-border-sm me-2"></span><span>Procesando...</span>
                             }
                             else
                             {
-                                <span><i class="fas fa-save"></i> @(nuevoPaciente.PacienteId > 0 ? "Actualizar" : "Guardar")</span>
+                                <i class="fas fa-save me-2"></i><span>Confirmar y Guardar</span>
                             }
                         </button>
-
-                        <button class="btn btn-secondary ms-2" @onclick="CancelarFormulario">
-                            <i class="fas fa-times"></i> Cancelar
-                        </button>
                     </div>
-                </div>
+                </EditForm>
             </div>
         </div>
     }
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <div class="row align-items-center">
-                        <div class="col-6">
-                            <h5>Lista de Pacientes</h5>
-                        </div>
-                        <div class="col-6">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Buscar por nombre..." @bind="textoBusqueda" />
-                                <button class="btn btn-outline-secondary" type="button" @onclick="BuscarPacientes">
-                                    <i class="fas fa-search"></i> Buscar
-                                </button>
-                                <button class="btn btn-outline-secondary" type="button" @onclick="MostrarTodos">
-                                    <i class="fas fa-times"></i> Limpiar
-                                </button>
-                            </div>
-                        </div>
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-6">
+                    <div class="input-group shadow-sm" style="border-radius: var(--radius-md); overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por nombre o documento..." @bind="textoBusqueda" @bind:event="oninput" @onkeyup="@BuscarPacientes" />
                     </div>
                 </div>
-
-                <div class="card-body">
-                    <div class="table-responsive">
-                        @if (cargandoPacientes)
-                        {
-                            <div class="text-center py-5">
-                                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                                <p class="mt-3">Cargando datos...</p>
-                            </div>
-                        }
-                        else if (pacientes == null || pacientes.Count == 0)
-                        {
-                            <div class="alert alert-info text-center">
-                                <i class="fas fa-info-circle"></i> No hay pacientes registrados
-                            </div>
-                        }
-                        else
-                        {
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Documento</th>
-                                        <th>Email</th>
-                                        <th>Tel閒ono</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @foreach (var paciente in pacientes)
-                                    {
-                                        <tr>
-                                            <td>@paciente.PacienteId</td>
-                                            <td>@paciente.Nombre</td>
-                                            <td>@paciente.Documento</td>
-                                            <td>@paciente.Email</td>
-                                            <td>@paciente.Telefono</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info" title="Ver detalles" @onclick="() => VerPaciente(paciente)">
-                                                    <i class="fas fa-eye"></i> Ver
-                                                </button>
-
-                                                <button class="btn btn-sm btn-warning" title="Editar" @onclick="() => EditarPaciente(paciente)">
-                                                    <i class="fas fa-edit"></i> Editar
-                                                </button>
-
-                                                <button class="btn btn-sm btn-danger" title="Eliminar" @onclick="() => EliminarPaciente(paciente.PacienteId)">
-                                                    <i class="fas fa-trash"></i> Eliminar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
-                    </div>
+                <div class="col-lg-6 text-lg-end">
+                    <button class="btn btn-outline-secondary px-4" @onclick="MostrarTodos">
+                        <i class="fas fa-sync-alt me-2"></i>Actualizar
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Table -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Paciente</th>
+                        <th>Documento</th>
+                        <th>Contacto</th>
+                        <th>Estado</th>
+                        <th class="text-end pe-4">Gesti贸n</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (cargandoPacientes)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="spinner-grow text-primary" role="status"></div>
+                                <div class="mt-3 text-muted fw-medium">Sincronizando registros...</div>
+                            </td>
+                        </tr>
+                    }
+                    else if (pacientes == null || !pacientes.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="opacity-25 mb-3">
+                                    <i class="fas fa-user-friends fa-4x"></i>
+                                </div>
+                                <h5 class="text-muted fw-bold">No hay resultados</h5>
+                                <p class="text-muted small">Intente con otro criterio de b煤squeda.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var paciente in pacientes)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-secondary">@paciente.Nombre</div>
+                                            <div class="small text-muted">Exp: #@paciente.PacienteId</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="fw-medium">@paciente.Documento</span></td>
+                                <td>
+                                    <div class="small fw-bold">@paciente.Email</div>
+                                    <div class="small text-muted"><i class="fas fa-phone-alt me-1"></i> @paciente.Telefono</div>
+                                </td>
+                                <td>
+                                    <span class="badge @(paciente.Activo ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                                        @(paciente.Activo ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm border shadow-sm" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                            <li><button class="dropdown-item py-2" @onclick="() => VerPaciente(paciente)"><i class="fas fa-eye text-info me-2"></i> Ver Detalle</button></li>
+                                            <li><button class="dropdown-item py-2" @onclick="() => EditarPaciente(paciente)"><i class="fas fa-edit text-warning me-2"></i> Editar</button></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><button class="dropdown-item py-2 text-danger" @onclick="() => EliminarPaciente(paciente.PacienteId)"><i class="fas fa-trash-alt me-2"></i> Dar de Baja</button></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<style>
+    .bg-success-subtle { background-color: #d1fae5; color: #065f46; }
+    .bg-danger-subtle { background-color: #fee2e2; color: #991b1b; }
+    .dropdown-item:active { background-color: var(--primary); }
+</style>
 
 @code {
     private List<PacienteModel> pacientes = new();
@@ -204,8 +218,11 @@
     private async Task CargarPacientes()
     {
         cargandoPacientes = true;
-        var resultado = await PacienteService.ObtenerTodosPacientes();
-        pacientes = resultado ?? new List<PacienteModel>();
+        try {
+            pacientes = await PacienteService.ObtenerTodosPacientes();
+        } catch {
+            pacientes = new List<PacienteModel>();
+        }
         cargandoPacientes = false;
     }
 
@@ -218,8 +235,7 @@
         }
 
         cargandoPacientes = true;
-        var resultado = await PacienteService.BuscarPacientes(textoBusqueda);
-        pacientes = resultado ?? new List<PacienteModel>();
+        pacientes = await PacienteService.BuscarPacientes(textoBusqueda);
         cargandoPacientes = false;
     }
 
@@ -231,12 +247,7 @@
 
     private void MostrarFormularioNuevo()
     {
-        nuevoPaciente = new PacienteModel
-        {
-            FechaRegistro = DateTime.UtcNow,
-            Activo = true
-        };
-
+        nuevoPaciente = new PacienteModel { FechaRegistro = DateTime.UtcNow, Activo = true };
         mensajeError = null;
         mensajeExito = null;
         mostrarFormulario = true;
@@ -245,19 +256,13 @@
     private void CancelarFormulario()
     {
         mostrarFormulario = false;
-        nuevoPaciente = new PacienteModel
-        {
-            FechaRegistro = DateTime.UtcNow,
-            Activo = true
-        };
         mensajeError = null;
         mensajeExito = null;
     }
 
     private void VerPaciente(PacienteModel paciente)
     {
-        mensajeExito = $"Paciente: {paciente.Nombre} | Documento: {paciente.Documento} | Tel閒ono: {paciente.Telefono}";
-        mensajeError = null;
+        mensajeExito = $"Vista previa de: {paciente.Nombre} (Exp # {paciente.PacienteId})";
     }
 
     private void EditarPaciente(PacienteModel paciente)
@@ -275,100 +280,35 @@
             FechaRegistro = paciente.FechaRegistro,
             Activo = paciente.Activo
         };
-
         mostrarFormulario = true;
-        mensajeError = null;
-        mensajeExito = "Editando paciente seleccionado.";
     }
 
     private async Task EliminarPaciente(int id)
     {
         estaCargando = true;
-        mensajeError = null;
-        mensajeExito = null;
-
-        try
-        {
-            var eliminado = await PacienteService.EliminarPaciente(id);
-
-            if (eliminado)
-            {
-                mensajeExito = "Paciente eliminado correctamente.";
-                await CargarPacientes();
-            }
-            else
-            {
-                mensajeError = "No se pudo eliminar el paciente.";
-            }
+        var exito = await PacienteService.EliminarPaciente(id);
+        if (exito) {
+            mensajeExito = "Registro desactivado correctamente.";
+            await CargarPacientes();
         }
-        catch (Exception ex)
-        {
-            mensajeError = $"Error al eliminar: {ex.Message}";
-        }
-        finally
-        {
-            estaCargando = false;
-        }
+        estaCargando = false;
     }
 
     private async Task GuardarPaciente()
     {
-        if (string.IsNullOrWhiteSpace(nuevoPaciente.Nombre))
-        {
-            mensajeError = "El nombre del paciente es requerido.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(nuevoPaciente.Email))
-        {
-            mensajeError = "El email es requerido.";
-            return;
-        }
-
         estaCargando = true;
-        mensajeError = null;
-        mensajeExito = null;
+        bool exito;
+        if (nuevoPaciente.PacienteId > 0)
+            exito = await PacienteService.ActualizarPaciente(nuevoPaciente.PacienteId, nuevoPaciente);
+        else
+            exito = await PacienteService.CrearPaciente(nuevoPaciente);
 
-        try
+        if (exito)
         {
-            bool resultado;
-
-            if (nuevoPaciente.PacienteId > 0)
-            {
-                resultado = await PacienteService.ActualizarPaciente(nuevoPaciente.PacienteId, nuevoPaciente);
-            }
-            else
-            {
-                resultado = await PacienteService.CrearPaciente(nuevoPaciente);
-            }
-
-            if (resultado)
-            {
-                mensajeExito = nuevoPaciente.PacienteId > 0
-                    ? "Paciente actualizado correctamente."
-                    : "Paciente guardado correctamente.";
-
-                nuevoPaciente = new PacienteModel
-                {
-                    FechaRegistro = DateTime.UtcNow,
-                    Activo = true
-                };
-
-                mostrarFormulario = false;
-                await CargarPacientes();
-            }
-            else
-            {
-                mensajeError = "No se pudo guardar el paciente. Revise la consola o Swagger.";
-            }
+            mensajeExito = "Operaci贸n completada con 茅xito.";
+            mostrarFormulario = false;
+            await CargarPacientes();
         }
-        catch (Exception ex)
-        {
-            mensajeError = $"Error: {ex.Message}";
-        }
-        finally
-        {
-            estaCargando = false;
-        }
+        estaCargando = false;
     }
 }

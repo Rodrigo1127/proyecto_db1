@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Interop.API.Data;
 using Hospital.Interop.API.Models;
@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/tecnicos")]
+    [Tags("Laboratorio ClÃ­nico")]
     public class TecnicosController : ControllerBase
     {
         private readonly HospitalDbContext _context;
@@ -38,7 +39,7 @@ namespace Hospital.Interop.API.Controllers
                 .FirstOrDefaultAsync(t => t.TecnicoId == id);
 
             if (tecnico == null)
-                return NotFound(new { mensaje = "Técnico no encontrado" });
+                return NotFound(new { mensaje = "TÃ©cnico no encontrado" });
 
             return Ok(tecnico);
         }
@@ -68,7 +69,7 @@ namespace Hospital.Interop.API.Controllers
 
             var existe = await _context.Tecnicos.AnyAsync(t => t.TecnicoId == id);
             if (!existe)
-                return NotFound(new { mensaje = "Técnico no encontrado" });
+                return NotFound(new { mensaje = "TÃ©cnico no encontrado" });
 
             _context.Entry(tecnico).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -84,7 +85,7 @@ namespace Hospital.Interop.API.Controllers
             var tecnico = await _context.Tecnicos.FindAsync(id);
 
             if (tecnico == null)
-                return NotFound(new { mensaje = "Técnico no encontrado" });
+                return NotFound(new { mensaje = "TÃ©cnico no encontrado" });
 
             tecnico.Activo = false;
             await _context.SaveChangesAsync();

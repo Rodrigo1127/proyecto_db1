@@ -7,6 +7,7 @@ namespace Hospital.Interop.API.Controllers
 {
     [ApiController]
     [Route("api/departamentos")]
+    [Tags("Administración y Sistema")]
     public class DepartamentosController : ControllerBase
     {
         private readonly HospitalDbContext _context;
