@@ -3,6 +3,7 @@ using Hospital.Interop.API.Services;
 using Hospital.Interop.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,14 +23,36 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ── Base de datos PostgreSQL ──────────────────────────────────────────────────
+// Local: usa appsettings.json
+// Railway: usa DATABASE_URL
 builder.Services.AddDbContext<HospitalDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-    if (string.IsNullOrWhiteSpace(connectionString))
+    string connectionString;
+
+    if (!string.IsNullOrWhiteSpace(databaseUrl))
     {
-        throw new InvalidOperationException(
-            "No se encontró la cadena de conexión 'DefaultConnection' en appsettings.json.");
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+
+        var username = WebUtility.UrlDecode(userInfo[0]);
+        var password = WebUtility.UrlDecode(userInfo[1]);
+        var database = uri.AbsolutePath.TrimStart('/');
+
+        connectionString =
+            $"Host={uri.Host};" +
+            $"Port={uri.Port};" +
+            $"Database={database};" +
+            $"Username={username};" +
+            $"Password={password};" +
+            $"SSL Mode=Require;" +
+            $"Trust Server Certificate=true";
+    }
+    else
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("No se encontró la cadena de conexión DefaultConnection.");
     }
 
     options.UseNpgsql(connectionString);
@@ -61,6 +84,7 @@ void AddDeptClient<T>(string key) where T : DepartamentoClientBase
     });
 }
 
+// Clientes/departamentos externos
 AddDeptClient<AtencionPacienteClient>("AtencionPaciente");
 AddDeptClient<EmergenciasClient>("Emergencias");
 AddDeptClient<FarmaciaHospitalariaClient>("Farmacia");
@@ -76,7 +100,11 @@ AddDeptClient<DiagnosticoImagenesClient>("DiagnosticoImagenes");
 AddDeptClient<TerapiasRehabilitacionClient>("TerapiasRehabilitacion");
 AddDeptClient<HospitalizacionClient>("Hospitalizacion");
 AddDeptClient<CuidadosCriticosClient>("CuidadosCriticos");
+
+// Esta clase es la que existe en tu proyecto.
+// No uses EspecialidadesMedicasClient porque no existe.
 AddDeptClient<DepartamentoesMedicasClient>("DepartamentoesMedicas");
+
 AddDeptClient<InvestigacionClinicaClient>("InvestigacionClinica");
 AddDeptClient<FacturacionExternaClient>("Facturacion");
 AddDeptClient<GestionPacientesClient>("GestionPacientes");
@@ -120,9 +148,8 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
-// IMPORTANTE:
-// Se comenta para trabajar con el frontend usando HTTP.
-// Si lo dejas activo, puede redirigir a HTTPS y bloquear la conexión desde Blazor.
+// En Railway no usamos redirección HTTPS interna.
+// Localmente también lo dejamos comentado para evitar problemas con Blazor Web.
 // app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
