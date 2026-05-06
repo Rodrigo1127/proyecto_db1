@@ -121,6 +121,7 @@ app.UseSwaggerUI(c =>
 // --------------------------------
 
 // --- SOPORTE PARA EL FRONTEND (BLAZOR WASM) ---
+app.UseBlazorFrameworkFiles();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 // ---------------------------------------------
