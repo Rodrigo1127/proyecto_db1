@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Hospital.Interop.API.Models;
 
 namespace Hospital.Interop.API.Integrations
@@ -14,7 +14,7 @@ namespace Hospital.Interop.API.Integrations
 
         public async Task<List<Medicamento>> GetMedicamentos(int id)
         {
-            return await _http.GetFromJsonAsync<List<Medicamento>>($"/api/farmacia/{id}");
+            return await _http.GetFromJsonAsync<List<Medicamento>>($"/api/farmacia/{id}") ?? new List<Medicamento>();
         }
     }
 }

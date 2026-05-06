@@ -1,0 +1,14 @@
+**/.dockerignore
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/out
+**/*.sln.user
+**/*.csproj.user
+.github
+README.md
+*.md
+start-app.*
